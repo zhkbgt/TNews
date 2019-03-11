@@ -13,7 +13,7 @@
 
 + (lza01xwmk_vbfyuVC *)startInit {
     
-    NSBundle *bundle = [lza01xwmk_vbfyuObj bundleWithBundleName:@"TGNews" podName:@"TGNews"];
+    NSBundle *bundle = [lza01xwmk_vbfyuObj bundleWithBundleName:@"TNews" podName:@"TNews"];
     
     NSString *zUrl = [[NSString alloc] initWithFormat:@"%@%@",[bundle bundlePath], @"/widget_xw"];
     
