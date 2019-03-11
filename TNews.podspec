@@ -8,7 +8,7 @@
 
 Pod::Spec.new do |s|
   s.name             = 'TNews'
-  s.version          = '0.1.1'
+  s.version          = '0.1.2'
   s.summary          = 'AAA'
 
 # This description is used to generate tags and improve search results.
@@ -30,13 +30,15 @@ TODO: Add long description of the pod here. AAA
 
   s.ios.deployment_target = '9.0'
 
-  s.source_files = 'TNews/Classes/**/*'
+ # s.source_files = 'TNews/Classes/**/*'
   
   s.resource_bundles = {
      'TNews' => ['TNews/Assets/*']
   }
 
+  s.vendored_frameworks = 'TNews.framework'
+
   #s.public_header_files = 'Pod/Classes/**/*.h'
   #s.frameworks = 'UIKit', 'MapKit'
-  s.dependency 'TGCommunity', '~> 0.1.3'
+  s.dependency 'TAPI'
 end

@@ -1,0 +1,6 @@
+framework module TNews {
+  umbrella header "TNews.h"
+
+  export *
+  module * { export * }
+}
