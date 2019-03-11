@@ -1,0 +1,101 @@
+/* 
+ * 评论列表公用样式
+ */
+
+.comment__panel {
+  margin-bottom: .75rem;
+}
+
+.comment__panel:last-child {
+  margin-bottom: 0;
+}
+
+.comment__info {
+  display: flex;
+  width: 100%;
+}
+
+.comment__avatar {
+  flex-shrink: 0;
+  margin-right: .5rem;
+  width: 40px;
+}
+
+.comment__avatar img {
+  border-radius: 50%;
+}
+
+.comment__info>div:last-child {
+  width: 100%;
+}
+
+.comment__nickname {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  line-height: 1.5rem;
+  font-size: .65rem;
+}
+
+.comment__like {
+  display: flex;
+  align-items: center;
+}
+
+.comment__like>div {
+  margin-left: .3rem;
+}
+
+.comment__desc {
+  font-size: .75rem;
+  transition: background-color .3s;
+}
+
+.comment__desc:active {
+  background-color: #e6e6e6;
+}
+
+.comment__time {
+  line-height: 1.2rem;
+  font-size: .6rem;
+}
+
+.comment__reply {
+  margin-left: calc(40px + .5rem);
+  padding: .5rem .75rem;
+  border-radius: .4rem;
+  background-color: #f0f0f0;
+  font-size: .65rem;
+}
+
+.comment-ans__panel {
+  position: relative;
+  display: flex;
+}
+
+.comment-ans__panel:not(:first-child) {
+  padding-top: .5rem;
+}
+
+.comment-ans__panel:not(:last-child) {
+  padding-bottom: .5rem;
+}
+
+.comment-ans__user {
+  flex-shrink: 0;
+  margin-right: 10px;
+}
+
+.comment-ans__user span {
+  margin: 0 4px;
+  font-size: .6rem;
+  color: #9c9c9c;
+}
+
+.comment-ans__content {
+  width: 100%;
+}
+
+.comment-ans__content:active {
+  background-color: #e6e6e6;
+}

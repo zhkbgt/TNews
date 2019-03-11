@@ -1,0 +1,427 @@
+<!DOCTYPE HTML>
+<html>
+
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="maximum-scale=1.0, minimum-scale=1.0, user-scalable=0, initial-scale=1.0, width=device-width" />
+	<meta name="format-detection" content="telephone=no, email=no, date=no, address=no">
+	<link rel="stylesheet" type="text/css" href="./css/aui/aui.css" />
+	<link rel="stylesheet" href="./css/custom/common.css">
+  <link rel="stylesheet" href="./script/vant/index.css">
+  <script src="./script/vue/vue.js"></script>
+  <script src="./script/vant/vant.min.js"></script>
+	<style>
+		.aui-bar-nav {
+	  background-color: #ec4753;
+	}
+	.header {
+	  display: flex;
+	  justify-content: space-between;
+	  align-items: center;
+	  min-height: 2.25rem;
+	  background-color: #ec4753;
+	}
+	.header__icon {
+	  padding: 0 .5rem;
+	}
+	.header .searchbar {
+	  display: flex;
+	  align-items: center;
+	  padding: .3rem 1rem;
+	  /* width: 40%; */
+	  height: 2.25rem;
+	}
+	.searchbar__wrap {
+	  display: flex;
+	  align-items: center;
+	  width: 200px;
+	  height: 100%;
+	  background-color: #fff;
+	  border-radius: .2rem;
+	  font-size: .6rem;
+	  color: #a0a0a0;
+	}
+	.searchbar__wrap > img {
+	  margin: 0 .75rem
+	}
+	.searchbar__wrap > div {
+	  padding-right: .5rem;
+	}
+	.tab-nav__wrap {
+	  position: relative;
+	  height: 2.2rem;
+	  overflow: hidden;
+	}
+	.tab-nav__wrap.hairline::after {
+	  border-bottom-width: 1px;
+	  border-color: #bfc6ce;
+	}
+	.tab-nav__tabs {
+	  display: flex;
+	  /* flex-wrap: nowrap; */
+	  position: relative;
+	  background-color: #fff;
+	  overflow: hidden;
+	  overflow-x: auto;
+	  -webkit-overflow-scrolling: none;
+	}
+	.tab-nav__item {
+	  -webkit-box-flex: 0;
+	  -webkit-flex: 0 0 22%;
+	  flex: 0 0 22%;
+	  position: relative;
+	  /* height: 2.2rem; */
+	  text-align: center;
+	  line-height: 2.2rem;
+	  font-size: .75rem;
+	}
+	.tab-nav__item span {
+	  display: inline-block;
+	  position: relative;
+	}
+	.tab-nav__item span::after {
+	  content: '';
+	  display: block;
+	  position: absolute;
+	  bottom: 0;
+	  left: 0;
+	  width: 100%;
+	  height: 3px;
+	  background-color: transparent;
+	}
+	.tab-nav__item.active span {
+	  color: rgb(236, 65, 77);
+	}
+	.tab-nav__item.active span::after {
+	  background-color: rgb(236, 65, 77);
+	}
+	.tab-nav.hairline::after {
+	  border-bottom-width: 1px;
+	  border-color: #bfc6ce;
+		z-index: 1000;
+	}
+	.van-tab {
+		-webkit-box-flex: 0;
+		-ms-flex: 0 0 23%;
+		flex: 0 0 23%;
+	}
+	.van-tab--active {
+		color: rgb(236, 65, 77);
+	}
+	.van-tabs__line {
+		bottom: 16px;
+		background-color: rgb(236, 65, 77);
+	}
+  </style>
+</head>
+
+<body>
+	<div id="app" v-cloak>
+		<header class="header">
+			<div class="header__icon" tapmode onclick="fnIsAisdeExist()" style="padding-right: 1.5rem;">
+				<img src="./icon/ico_list.png" width="20">
+			</div>
+			<div class="searchbar">
+				<div class="searchbar__wrap" @click="toSearch">
+					<img src="./icon/search.png" width="18">
+					<div class="aui-ellipsis-1">{{ topSearch[0] }}</div>
+				</div>
+				<!-- <div class="header__icon" tapmode onclick="toAudioDetail()">
+		  <img src="./icon/ico_headset.png" width="20">
+		</div> -->
+			</div>
+		</header>
+		<!-- <nav class="tab-nav__wrap hairline">
+			<div class="tab-nav__tabs">
+				<div v-for="(el, i) in tabs" :key="i" class="tab-nav__item gray" :class="{'active': i === active}" @click="onTabChange(i)">
+					<span>{{ el }}</span>
+				</div>
+			</div>
+		</nav> -->
+		<van-tabs v-model="active" class="tab-nav hairline" @click="onTabChange">
+			<van-tab v-for="(el, i) in tabs" :key="i" :title="el"></van-tab>
+		</van-tabs>
+	</div>
+</body>
+<script type="text/javascript" src="./script/api.js"></script>
+<script src="./script/ajax.js"></script>
+<script type="text/javascript">
+	function _toConsumableArray(arr) {
+		if (Array.isArray(arr)) {
+			for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) {
+				arr2[i] = arr[i];
+			}
+			return arr2;
+		} else {
+			return Array.from(arr);
+		}
+	}
+
+	var headerH;
+	var isLoadAisdeDom = false;
+	var data = {
+		active: 0,
+		tabs: [],
+		frames: [],
+		navItemWidth: 0,
+		topSearch: [],
+		asideMenu: [],
+	};
+	var defaultTabs = ['首页' /* , '我的' */ ],
+		defaultFrames = [{
+			name: 'news_home_frm',
+			url: './html/news/news_home_frm.html',
+			bounces: false
+			/* , {
+ 	  name: 'news_my_frm',
+ 	  url: './news_my_frm.html',
+ 	  bounces: false
+ 	} */
+		}];
+
+	var vm = new Vue({
+		el: '#app',
+		data: data,
+		methods: {
+			/* fetchProps() {
+    this.topSearch = [...api.pageParam.topSearch];
+  }, */
+			fetchData: function fetchData() {
+				var _this2 = this;
+
+				$ajax_post('appnews/top_search_list', {}, function (res) {
+					_this2.topSearch = [].concat(_toConsumableArray(res));
+				}, {
+					hideLoading: true
+				});
+
+				setTimeout(function () {
+					$ajax_post('appindex/class_data', {
+						user_id: 100000
+					}, function (res) {
+						_this2.asideMenu = [].concat(_toConsumableArray(res.left_class)); // 侧栏所有分类
+						var tabs = [].concat(_toConsumableArray(res.top_class));
+
+						_this2.fnResetTabData();
+
+						tabs.forEach(function (el) {
+							_this2.tabs.push(el.val);
+
+							_this2.frames.push({
+								name: 'news_tab_' + el.id + '_frm',
+								url: './html/news/news_tab_frm.html',
+								bounces: false,
+								pageParam: {
+									id: el.id
+								}
+							});
+						});
+
+						setTimeout(function () {
+							// _this2.fnGetNavItemWidth();
+							_this2.initACFrameGroup();
+						}, 100);
+					});
+				}, 300); // 避免加载动画与window动画冲突
+			},
+			initACFrameGroup: function initACFrameGroup() {
+				var _this = this;
+				api.openFrameGroup({
+					name: 'news_tab',
+					scrollEnabled: true,
+					rect: {
+						marginTop: headerH,
+						w: 'auto',
+						h: 'auto'
+					},
+					index: 0,
+					preload: 0,
+					frames: _this.frames,
+					bounces: true
+				}, function (ret, err) {
+					if (ret) {
+						_this.active = ret.index;
+						// _this.navScrollWatcher(ret.index + 1);
+					}
+				});
+			},
+			init: function init() {
+				// this.fetchProps();
+				this.fetchData();
+			},
+			onTabChange: function onTabChange(index) {
+				this.active = index;
+				// this.navScrollWatcher(index + 1);
+
+				api.setFrameGroupIndex({
+					name: 'news_tab',
+					index: index,
+					scroll: true
+				});
+			},
+			/* navScrollWatcher: function navScrollWatcher(i) {
+				var navDom = document.querySelector('.tab-nav__tabs');
+				var _temp = i - 2;
+
+				// console.log(_temp)
+
+				if (_temp >= 2) {
+					navDom.scrollLeft += this.navItemWidth * _temp;
+				} else {
+					navDom.scrollLeft = 0;
+				}
+				// console.log(navDom.scrollLeft)
+			}, */
+			fnResetTabData: function fnResetTabData() {
+				// 重置渲染frameGroup所依赖的数据, 赋默认值
+				this.tabs = [].concat(defaultTabs);
+				this.frames = [].concat(defaultFrames);
+			},
+			/* fnGetNavItemWidth: function fnGetNavItemWidth() {
+				var navItemDom = document.querySelectorAll('.tab-nav__item')[0];
+				this.navItemWidth = navItemDom.offsetWidth;
+				// var width = api.winWidth * 0.22;
+				// this.navItemWidth = width;
+			}, */
+			fnResetFrameGroup: function fnResetFrameGroup(tabs) {
+				var _this3 = this;
+
+				console.log(JSON.stringify(tabs));
+
+				api.closeFrameGroup({
+					name: 'news_tab'
+				});
+				this.fnResetTabData();
+
+				tabs.forEach(function (el) {
+					_this3.tabs.push(el.val);
+
+					_this3.frames.push({
+						name: 'news_tab_' + el.id + '_frm',
+						url: './html/news/news_tab_frm.html',
+						bounces: false,
+						pageParam: {
+							id: el.id
+						}
+					});
+				});
+
+				setTimeout(function () {
+					// _this3.fnGetNavItemWidth();
+					_this3.initACFrameGroup();
+					api.bringFrameToFront({
+						from: 'news_aside_frm'
+					});
+				}, 100);
+			},
+			toSearch: function toSearch() {
+				api.openWin({
+					name: 'search_win',
+					url: './html/search/search_win.html',
+					bounces: false,
+					pageParam: {
+						topSearch: [].concat(_toConsumableArray(this.topSearch))
+					}
+				});
+			}
+		}
+	});
+
+	apiready = function apiready() {
+		// api.parseTapmode();
+
+		var header = $api.dom('header');
+		$api.fixStatusBar(header);
+
+		// headerH = $api.offset(header).h + $api.offset($api.dom('nav')).h;
+		headerH = $api.offset(header).h + $api.offset($api.dom('.tab-nav')).h;
+
+		api.setStatusBarStyle({
+			style: 'dark',
+			color: 'rgba(0, 0, 0, 0)'
+		});
+
+		vm.init();
+	};
+
+	/* function showFrame() {
+		api.setFrameGroupAttr({
+			name: 'news_tab',
+			hidden: false
+		});
+	}
+
+	function hideFrame() {
+		api.setFrameGroupAttr({
+			name: 'news_tab',
+			hidden: true
+		});
+	} */
+
+	function fnIsAisdeExist() {
+		console.log(isLoadAisdeDom);
+		isLoadAisdeDom ? showAsideFrm() : openAsideFrm();
+	}
+
+	function openAsideFrm() {
+		console.log('open aside');
+		isLoadAisdeDom = true;
+		api.openFrame({
+			name: 'news_aside_frm',
+			url: './html/news/news_aside_frm.html',
+			rect: {
+				x: 0,
+				y: 0,
+				w: 'auto',
+				h: 'auto'
+			},
+			animation: {
+				type: 'fade'
+			},
+			pageParam: {
+				menu: [].concat(_toConsumableArray(vm.asideMenu))
+			}
+		});
+	}
+
+	function showAsideFrm() {
+		console.log('show aside');
+		api.setFrameAttr({
+			name: 'news_aside_frm',
+			hidden: false
+		});
+		api.bringFrameToFront({
+			from: 'news_aside_frm'
+		});
+
+		api.execScript({
+			frameName: 'news_aside_frm',
+			script: 'asideAppear();'
+		});
+	}
+
+	function hideAsideFrm() {
+		console.log('hide aside');
+		api.setFrameAttr({
+			name: 'news_aside_frm',
+			hidden: true
+		});
+	}
+
+	//   function toAudioDetail() {
+	//     api.openWin({
+	//       name: 'audio_detail_win',
+	//       url: '../audio_detail/audio_detail_win.html',
+	//       bounces: false,
+	//       pageParam: {
+	//         key: 'value'
+	//       }
+	//     });
+	//   }
+
+	function onCloseWin() {
+		api.closeWin();
+	}
+</script>
+
+</html>

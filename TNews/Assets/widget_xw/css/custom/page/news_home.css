@@ -1,0 +1,69 @@
+/* 
+ * 新闻首页样式
+ */
+
+.rolling-news {
+  display: flex;
+  margin: .75rem 0;
+  padding: .75rem 0;
+  background-color: #fff;
+}
+
+.rolling-news__title {
+  width: 20%;
+  height: 2rem;
+  text-align: center;
+}
+
+.rolling-news__title span {
+  display: inline-block;
+  width: 2rem;
+  line-height: 1rem;
+  font-size: .9rem;
+  font-weight: 700;
+  color: #ec4753;
+}
+
+.rolling-news__content {
+  width: 80%;
+  height: 2rem;
+}
+
+.rolling-news__item {
+  display: flex;
+  align-items: center;
+  padding-right: 1rem;
+  font-size: .65rem;
+  overflow-y: hidden;
+}
+
+.news {
+  padding: 0;
+}
+
+.adv {
+  position: relative;
+  margin: .5rem 0;
+  width: 100%;
+}
+
+.adv-mask {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, .15);
+}
+
+.adv-mask div {
+  position: absolute;
+  right: 1rem;
+  bottom: 1rem;
+  padding: 0 .3rem;
+  border: 1px solid rgba(204, 204, 204);
+  border-radius: 1rem;
+  line-height: .8rem;
+  font-size: .6rem;
+  color: rgb(204, 204, 204);
+}

@@ -1,0 +1,60 @@
+<!DOCTYPE HTML>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="maximum-scale=1.0, minimum-scale=1.0, user-scalable=0, initial-scale=1.0, width=device-width" />
+  <meta name="format-detection" content="telephone=no, email=no, date=no, address=no">
+  <link rel="stylesheet" type="text/css" href="../../css/aui/aui.css" />
+  <link rel="stylesheet" href="../../css/custom/common.css">
+  <style>
+    .aui-bar-nav {
+      background-color: #f2f2f2;
+    }
+    /* .aui-title {
+
+    } */
+  </style>
+</head>
+
+<body>
+  <header id="head" class="aui-bar aui-bar-nav">
+    <a class="aui-btn aui-pull-left" tapmode onclick="onCloseWin()">
+      <img src="../../icon/ico_back.png" width="18">
+    </a>
+    <div class="aui-title dark" id="title"></div>
+  </header>
+</body>
+<script type="text/javascript" src="../../script/api.js"></script>
+<script type="text/javascript">
+  apiready = function apiready() {
+    api.parseTapmode();
+
+    var header = $api.byId('head');
+    var titleDom = document.querySelector('#title');
+    $api.fixStatusBar(header);
+
+    var header_h = $api.offset(header).h;
+    titleDom.innerHTML = api.pageParam.keywords;
+
+    api.openFrame({
+      name: 'search_res_frm',
+      url: './search_res_frm.html',
+      bounces: false,
+      pageParam: {
+        keywords: api.pageParam.keywords
+      },
+      rect: {
+        marginTop: header_h,
+        w: 'auto',
+        h: 'auto'
+      }
+    });
+  };
+
+  function onCloseWin() {
+    api.closeWin();
+  }
+</script>
+
+</html>

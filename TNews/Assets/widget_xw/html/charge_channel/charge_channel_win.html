@@ -1,0 +1,59 @@
+<!DOCTYPE HTML>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="maximum-scale=1.0, minimum-scale=1.0, user-scalable=0, initial-scale=1.0, width=device-width" />
+  <meta name="format-detection" content="telephone=no, email=no, date=no, address=no">
+  <link rel="stylesheet" type="text/css" href="../../css/aui/aui.css" />
+  <link rel="stylesheet" href="../../css/custom/common.css">
+  <style>
+    .aui-title {
+      font-size: .75rem;
+      font-weight: 700;
+    }
+  </style>
+</head>
+
+<body>
+  <header id="head" class="aui-bar aui-bar-nav aui-bar-light">
+    <a class="aui-btn aui-pull-left" tapmode onclick="onCloseWin()">
+      <img src="../../icon/ico_back.png" width="18">
+    </a>
+    <div class="aui-title dark">频道管理</div>
+  </header>
+</body>
+<script type="text/javascript" src="../../script/api.js"></script>
+<script type="text/javascript">
+  function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
+
+  apiready = function apiready() {
+    api.parseTapmode();
+
+    var header = $api.byId('head');
+    $api.fixStatusBar(header);
+
+    var header_h = $api.offset(header).h;
+
+    api.openFrame({
+      name: 'charge_channel_frm',
+      url: './charge_channel_frm.html',
+      bounces: false,
+      rect: {
+        x: 0,
+        y: header_h,
+        w: 'auto',
+        h: 'auto'
+      },
+      pageParam: {
+        menu: [].concat(_toConsumableArray(api.pageParam.menu))
+      }
+    });
+  };
+
+  function onCloseWin() {
+    api.closeWin();
+  }
+</script>
+
+</html>

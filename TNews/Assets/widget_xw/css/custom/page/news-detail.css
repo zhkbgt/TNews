@@ -1,0 +1,73 @@
+/* 
+ * 新闻详情页样式
+ */
+
+.news-info,
+.news-content,
+.news-comments {
+  padding: 0 .75rem;
+  background: #fff;
+}
+
+.news-info__title {
+  padding-top: 1.5rem;
+  /* line-height: 3rem; */
+  font-size: .9rem;
+  font-weight: 700;
+}
+
+.news-info .cell {
+  padding: 1.2rem 0;
+  background-color: inherit;
+}
+
+.news-info__avatar {
+  margin-right: .75rem;
+  width: 48px;
+  height: 48px;
+}
+
+.news-info__avatar img {
+  max-height: 100%;
+  border-radius: 50%;
+}
+
+.news-info__nickname {
+  font-size: .7rem;
+}
+
+.news-info__time {
+  font-size: .65rem;
+}
+
+.news-info__nickname,
+.news-info__time {
+  line-height: normal;
+}
+
+.news-info .cell .cell__value {
+  width: 1rem;
+}
+
+.news-comments {
+  margin-bottom: 60px;
+}
+
+.news-comments .cell {
+  padding: .7rem 0;
+}
+
+.news-comments .cell__title {
+  font-size: .8rem;
+  font-weight: 700;
+}
+
+.news-comments__list.empty {
+  display: flex;
+  justify-content: center;
+}
+
+.news-comments__list.empty>div {
+  padding-bottom: .75rem;
+  text-align: center;
+}

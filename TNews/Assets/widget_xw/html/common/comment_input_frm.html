@@ -1,0 +1,160 @@
+<!DOCTYPE HTML>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="maximum-scale=1.0, minimum-scale=1.0, user-scalable=0, initial-scale=1.0, width=device-width" />
+  <meta name="format-detection" content="telephone=no, email=no, date=no, address=no">
+  <link rel="stylesheet" type="text/css" href="../../css/aui/aui.css" />
+  <link rel="stylesheet" href="../../css/custom/common.css">
+  <link rel="stylesheet" href="../../css/custom/page/comment-input.css">
+</head>
+
+<body>
+  <div class="aui-mask aui-mask-in">
+  </div>
+  <div id="app" class="aui-content c-input" v-cloak>
+    <div class="c-input__wrap">
+      <div class="c-input__head">
+        <div class="gray">至少输入5个字</div>
+        <div class="c-input__submit">
+          <span :class="valid ? 'active' : 'light'" @click="onSubmit">发&nbsp;&nbsp;布</span>
+        </div>
+      </div>
+      <div class="c-input__body">
+        <textarea v-model="message" id="message" class="dark" rows="4" placeholder="我来说两句"></textarea>
+      </div>
+    </div>
+  </div>
+</body>
+<script type="text/javascript" src="../../script/api.js"></script>
+<script src="../../script/vue/vue.js"></script>
+<script src="../../script/ajax.js"></script>
+<script type="text/javascript">
+  var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
+  var data = {
+    url: null, // 接口地址
+    params: null,
+    from: null,
+    callback: null,
+    callbackParams: null,
+    message: '',
+    valid: false
+  };
+
+  var vm = new Vue({
+    el: '#app',
+    data: data,
+    watch: {
+      message: function message() {
+        this.valid = this.message.length >= 5;
+      }
+    },
+    methods: {
+      fetchProps: function fetchProps() {
+        console.log(JSON.stringify(api.pageParam));
+        this.url = api.pageParam.url;
+        this.params = _extends({}, api.pageParam.params);
+        this.from = api.pageParam.from;
+        this.callback = api.pageParam.callback;
+        this.callbackParams = _extends({}, api.pageParam.callbackParams);
+
+        console.log(this.url);
+        console.log(JSON.stringify(this.params));
+        console.log(this.from);
+        console.log(this.callback);
+        console.log(JSON.stringify(this.callbackParams));
+      },
+      init: function init() {
+        this.fetchProps();
+      },
+      msgValidator: function msgValidator() {
+        var len = $api.trim(this.message).length;
+
+        if (len === 0) {
+          api.toast({
+            msg: '内容不能为空',
+            duration: 1500,
+            location: 'bottom'
+          });
+          return false;
+        } else if (len > 0 && len < 5) {
+          api.toast({
+            msg: '至少输入5个字',
+            duration: 1500,
+            location: 'bottom'
+          });
+          return false;
+        }
+
+        return true;
+      },
+      onSubmit: function onSubmit() {
+        var _this = this;
+
+        document.getElementById("message").focus();
+        var isValid = this.msgValidator();
+
+        if (isValid) {
+          console.log($api.trim(this.message));
+
+          var params = _extends({
+            content: this.message
+          }, this.params);
+
+          $ajax_post(this.url, params, function (res) {
+            api.toast({
+              msg: '发表评论成功',
+              duration: 1500,
+              location: 'bottom'
+            });
+
+            var script = 'vm.' + _this.callback + '(' + JSON.stringify(res.comment_info) + ', ' + JSON.stringify(_this.callbackParams) + ');';
+            api.execScript({
+              frameName: _this.from,
+              script: script
+            });
+
+            setTimeout(function () {
+              clickOutside();
+            }, 1500);
+          });
+        }
+      }
+    }
+  });
+
+  apiready = function apiready() {
+    var inputPanel = document.querySelector('.c-input');
+    var mask = document.querySelector('.aui-mask');
+
+    $api.css(inputPanel, 'opacity: 1;transform: translate3d(0,0,0);-webkit-transform: translate3d(0,0,0);');
+    $api.css(mask, 'transform: translate3d(0,0,0);-webkit-transform: translate3d(0,0,0);');
+    mask.onclick = clickOutside;
+    vm.init();
+
+    autoFocusInput();
+  };
+
+  function clickOutside() {
+    var inputPanel = document.querySelector('.c-input'),
+        mask = document.querySelector('.aui-mask');
+
+    $api.css(inputPanel, 'opacity: 0;transform: translate3d(0,100%,0);-webkit-transform: translate3d(0,100%,0);');
+    $api.css(mask, 'transform: translate3d(0,100%,0);-webkit-transform: translate3d(0,100%,0);');
+
+    setTimeout(function () {
+      api.closeFrame({});
+    }, 300);
+  }
+
+  function autoFocusInput() {
+<!--    var softInput = api.require('softInputMgr');-->
+<!--    softInput.toggleKeyboard();-->
+<!---->
+<!--    document.getElementById("message").focus();-->
+  }
+</script>
+
+</html>

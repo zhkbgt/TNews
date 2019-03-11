@@ -1,0 +1,70 @@
+/* 
+ * 首页侧菜单栏样式
+ */
+
+body {
+  background: transparent;
+}
+
+.aui-mask {
+  opacity: 0;
+  -webkit-transition: opacity .3s;
+  transition: opacity .3s;
+}
+
+.aside {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 70%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, .95);
+  z-index: 999;
+  -webkit-transition: -webkit-transform .3s;
+  transition: transform .3s;
+  -webkit-transform: translate3d(-100%, 0, 0);
+  transform: translate3d(-100%, 0, 0);
+}
+
+.aside__list {
+  padding-top: 3.5rem;
+}
+
+.aside__item {
+  font-size: .65rem;
+}
+
+.aside__item .cell {
+  padding: .5rem .75rem;
+  background-color: inherit;
+}
+
+.aside__item .cell.hairline::after {
+  border-color: #232323;
+}
+
+.aside__item .cell.hairline:last-child::after {
+  border-bottom-width: 1px;
+}
+
+/* .aside__drop {
+      padding-left: 1rem;
+    } */
+.aside__drop li {
+  position: relative;
+  padding: .75rem .75rem .75rem 2.5rem;
+  font-size: .6rem;
+}
+
+.aside__drop li:active {
+  background-color: #1a1a1a;
+}
+
+.aside__drop li.hairline::after {
+  left: 60%;
+  border-color: #232323;
+}
+
+.aside__drop li.hairline:last-child::after {
+  border-bottom-width: 1px;
+}

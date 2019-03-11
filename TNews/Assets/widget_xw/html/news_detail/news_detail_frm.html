@@ -1,0 +1,425 @@
+<!DOCTYPE HTML>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="maximum-scale=1.0, minimum-scale=1.0, user-scalable=0, initial-scale=1.0, width=device-width" />
+  <meta name="format-detection" content="telephone=no, email=no, date=no, address=no">
+  <link rel="stylesheet" type="text/css" href="../../css/aui/aui.css" />
+  <link rel="stylesheet" href="../../script/vant/index.css">
+  <link rel="stylesheet" href="../../css/custom/common.css">
+  <link rel="stylesheet" href="../../css/custom/components/comments.css">
+  <link rel="stylesheet" href="../../css/custom/components/foot-action.css">
+  <link rel="stylesheet" href="../../css/custom/page/news-detail.css">
+  <script src="../../script/vue/vue.js"></script>
+  <script src="../../script/vant/vant.min.js"></script>
+</head>
+
+<body>
+  <div id="app" v-cloak class="news">
+    <!-- 新闻头部：标题，作者信息 -->
+    <header class="news-info">
+      <div class="news-info__title dark">{{ news.title }}</div>
+      <div class="cell" @click="toAuthor(author.id)">
+        <div class="cell__title">
+          <div class="news-info__avatar">
+            <v-img :url="author.avatar" err="../../image/avatar.png"></v-img>
+          </div>
+          <div>
+            <div class="news-info__nickname gray">{{ author.user_name }}</div>
+            <div class="news-info__time light">{{ news.timestamp | time }}</div>
+          </div>
+        </div>
+        <div class="cell__value">
+          <img src="../../icon/ico_more_light.png">
+        </div>
+      </div>
+    </header>
+    <!-- END -->
+    <!-- 新闻内容（富文本） -->
+    <section class="news-content" v-html="news.content"></section>
+    <!-- END -->
+    <!-- 评论列表 -->
+    <section class="news-comments">
+      <header class="cell" id="comments">
+        <div class="cell__title dark">全部评论({{ news.comments }})</div>
+      </header>
+      <van-list class="news-comments__list list" :class="{'empty': !comments.length}" v-model="infiniteLoading"
+        :finished="infiniteFinished" :immediate-check="false" :offset="50" @load="onLoad">
+        <div v-for="(el, i) in comments" :key="i" class="comment__panel">
+          <div class="comment__info">
+            <div class="comment__avatar">
+              <v-img :url="el.head_pic" err="../../image/avatar.png"></v-img>
+            </div>
+            <div>
+              <div class="comment__nickname">{{ el.user_nickname }}
+                <div class="comment__like" @click="fnCommentLike(i)">
+                  <span v-if="el.like_number">{{ el.like_number }}</span>
+                  <div><img :src="el.is_like ? '../../icon/ico_like_red.png' : '../../icon/ico_like.png'" width="18"></div>
+                </div>
+              </div>
+              <div class="comment__desc dark" @click="fnAnswerComment(i, el.id)">{{ el.comment }}</div>
+              <div class="comment__time gray">{{ el.timestamp | interval-time }}</div>
+            </div>
+          </div>
+          <div class="comment__reply" v-if="el.answer_list.length">
+            <div v-for="(ans, j) in el.answer_list" :key="j" class="comment-ans__panel hairline">
+              <div class="comment-ans__user" v-if="ans.user_nickname === ans.listen_nickname">{{ ans.user_nickname }}:</div>
+              <div class="comment-ans__user" v-else>{{ ans.user_nickname }}<span>回复</span>{{ ans.listen_nickname }}:</div>
+              <div class="comment-ans__content" @click="fnAnswerComment(i, el.id, ans.user_id)">{{ ans.answer }}</div>
+            </div>
+          </div>
+        </div>
+        <!-- 占位，优化上滑loading时的过渡 -->
+        <div style="height: 50px" v-show="!infiniteLoading && !infiniteFinished"></div>
+        <!-- END -->
+        <div class="light" style="font-size: .65rem;" v-if="!comments.length && infiniteFinished">
+          <img src="../../icon/no_comments.png" width="180">我们需要您的神评论
+        </div>
+        <div v-if="comments.length && infiniteFinished" class="load-more">-- 没有更多了 --</div>
+      </van-list>
+    </section>
+    <!-- END -->
+    <!-- 底部操作栏 -->
+    <footer class="foot-fixed">
+      <div class="action-bar hairline">
+        <div class="action-bar__item">
+          <div class="action-bar__icon" @click="onBack"><img src="../../icon/ico_back_light.png"></div>
+        </div>
+        <div class="action-bar__item comment-input" @click="openCommentInputFrame">
+          <div class="comment-input__wrap">写评论...</div>
+        </div>
+        <div class="action-bar__item">
+          <div class="action-bar__icon">
+            <a href="#comments"><img src="../../icon/ico_message.png"></a>
+          </div>
+          <div class="aui-badge" v-show="news.comments">{{ news.comments }}</div>
+        </div>
+        <div class="action-bar__item">
+          <div class="action-bar__icon" :class="{'toggling': iconToggle.like}" @click="fnLike">
+            <img :src="news.is_like ? '../../icon/ico_like_red.png' : '../../icon/ico_like.png'">
+          </div>
+          <div class="aui-badge" v-show="news.star">{{ news.star }}</div>
+        </div>
+        <div class="action-bar__item">
+          <div class="action-bar__icon" @click="openShareFrm"><img src="../../icon/ico_export_light.png"></div>
+        </div>
+        <div class="action-bar__item">
+          <div class="action-bar__icon" :class="{'toggling': iconToggle.collect}" @click="fnCollect">
+            <img :src="news.is_collect ? '../../icon/ico_star_red.png' : '../../icon/ico_star.png'">
+          </div>
+        </div>
+      </div>
+    </footer>
+    <!-- END -->
+  </div>
+</body>
+<script type="text/javascript" src="../../script/api.js"></script>
+<script src="../../script/vue/components.js"></script>
+<script src="../../script/vue/filter.js"></script>
+<script src="../../script/ajax.js"></script>
+<script type="text/javascript">
+  var _extends = Object.assign || function (target) {
+    for (var i = 1; i < arguments.length; i++) {
+      var source = arguments[i];
+      for (var key in source) {
+        if (Object.prototype.hasOwnProperty.call(source, key)) {
+          target[key] = source[key];
+        }
+      }
+    }
+    return target;
+  };
+
+  function _toConsumableArray(arr) {
+    if (Array.isArray(arr)) {
+      for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) {
+        arr2[i] = arr[i];
+      }
+      return arr2;
+    } else {
+      return Array.from(arr);
+    }
+  }
+
+  var data = {
+    news: {
+      // star: 1,
+      // is_like: 0
+      // content: html
+    },
+    author: {},
+    info: {},
+    news_content: '',
+    comments: [],
+    page: 1, // 评论列表初始页码
+    pageCount: 5, // 评论列表每页条数
+    infiniteLoading: false,
+    infiniteFinished: false,
+    iconToggle: {
+      like: false,
+      collect: false // 标志位, 控制点赞、收藏 icon的切换效果
+    }
+  };
+
+  var vm = new Vue({
+    el: '#app',
+    data: data,
+    methods: {
+      fetchProps: function fetchProps() {
+        this.news = _extends({}, api.pageParam.news);
+        this.author = _extends({}, api.pageParam.author);
+        this.comments = [].concat(_toConsumableArray(api.pageParam.comments));
+      },
+      fetchComments: function fetchComments() {
+        var _this2 = this;
+
+        $ajax_post('appcomment/comment_list', {
+          user_id: 100000,
+          id: this.news.id,
+          page: this.page,
+          page_count: this.pageCount,
+          type: 0
+        }, function (res) {
+          res.comment_list.forEach(function (el) {
+            _this2.comments.push(el);
+          });
+
+          _this2.infiniteLoading = false; // 控制加载结束
+          if (res.bottom_key) _this2.infiniteFinished = true; // 已是最后一页
+        }, {
+          hideLoading: true
+        });
+      },
+      init: function init() {
+        this.fetchProps();
+        // this.fetchComments();
+        // this.fetchData();
+      },
+      onLoad: function onLoad() {
+        // 根据页码加载数据
+        this.page++;
+        this.fetchComments();
+      },
+      onBack: function onBack() {
+        api.closeWin({});
+      },
+      fnLike: function fnLike() {
+        this.news.is_like ? this.onCancelLike() : this.onLike();
+      },
+      onLike: function onLike() {
+        var _this3 = this;
+
+        $ajax_post('applike/like', {
+          user_id: 100000,
+          id: this.news.id,
+          type: 0
+        }, function () {
+          _this3.news.star++;
+          _this3.news.is_like = 1;
+
+          // 点赞时icon切换效果控制
+          _this3.iconToggle.like = true;
+          setTimeout(function () {
+            _this3.iconToggle.like = false;
+          }, 150);
+        }, {
+          hideLoading: true
+        });
+      },
+      onCancelLike: function onCancelLike() {
+        var _this4 = this;
+
+        $ajax_post('applike/cancle_like', {
+          user_id: 100000,
+          id: this.news.id,
+          type: 0
+        }, function () {
+          _this4.news.star--;
+          _this4.news.is_like = 0;
+        }, {
+          hideLoading: true
+        });
+      },
+      fnAnswerComment: function fnAnswerComment(index, cId) {
+        var lId = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 0;
+
+        console.log(index);
+        console.log(cId);
+        console.log(lId);
+        var _this = this;
+        api.actionSheet({
+          cancelTitle: '取消',
+          buttons: ['回复']
+        }, function (ret, err) {
+          if (ret.buttonIndex == 1) {
+            // 唤起输入框frame
+            api.openFrame({
+              name: 'comment_input_frm',
+              url: '../common/comment_input_frm.html',
+              rect: {
+                x: 0,
+                y: 0,
+                w: 'auto',
+                h: 'auto'
+              },
+              pageParam: {
+                url: 'appcomment/answer_comment',
+                params: {
+                  news_id: _this.news.id,
+                  user_id: 100000,
+                  comment_id: cId,
+                  listen_id: lId,
+                  type: 0
+                },
+                from: api.frameName,
+                callback: 'fnReplyCommentCallback',
+                callbackParams: {
+                  index: index
+                }
+              }
+            });
+          }
+        });
+      },
+      fnCommentLike: function fnCommentLike(i) {
+        this.comments[i].is_like ? this.onCancelCommentLike(i) : this.onCommentLike(i);
+      },
+      onCommentLike: function onCommentLike(i) {
+        var _this5 = this;
+
+        $ajax_post('appcomment/comment_like', {
+          user_id: 100000,
+          comment_id: this.comments[i].id
+        }, function () {
+          _this5.comments[i].is_like = 1;
+        }, {
+          hideLoading: true
+        });
+      },
+      onCancelCommentLike: function onCancelCommentLike(i) {
+        var _this6 = this;
+
+        $ajax_post('appcomment/cancle_comment_like', {
+          user_id: 100000,
+          comment_id: this.comments[i].id
+        }, function () {
+          _this6.comments[i].is_like = 0;
+        }, {
+          hideLoading: true
+        });
+      },
+      fnCollect: function fnCollect() {
+        this.news.is_collect ? this.onCancelCollect() : this.onCollect();
+      },
+      onCollect: function onCollect() {
+        var _this7 = this;
+
+        $ajax_post('appcollect/collect', {
+          user_id: 100000,
+          id: this.news.id,
+          type: 0
+        }, function () {
+          _this7.news.is_collect = 1;
+          api.toast({
+            msg: '收藏成功',
+            duration: 1500,
+            location: 'bottom'
+          });
+
+          // 收藏时icon切换效果控制
+          _this7.iconToggle.collect = true;
+          setTimeout(function () {
+            _this7.iconToggle.collect = false;
+          }, 150);
+        }, {
+          hideLoading: true
+        });
+      },
+      onCancelCollect: function onCancelCollect() {
+        var _this8 = this;
+
+        $ajax_post('appcollect/cancle_collect', {
+          user_id: 100000,
+          id: this.news.id,
+          type: 0
+        }, function () {
+          _this8.news.is_collect = 0;
+          api.toast({
+            msg: '取消成功',
+            duration: 1500,
+            location: 'bottom'
+          });
+        }, {
+          hideLoading: true
+        });
+      },
+      fnSubmitCommentCallback: function fnSubmitCommentCallback(el, params) {
+        console.log(JSON.stringify(el));
+        this.comments.unshift(el);
+        this.news.comments++;
+      },
+      fnReplyCommentCallback: function fnReplyCommentCallback(el, params) {
+        console.log(JSON.stringify(el));
+        console.log(JSON.stringify(params));
+        this.comments[params.index].answer_list.push(el);
+        this.news.comments++;
+      },
+      openShareFrm: function openShareFrm() {
+        api.openFrame({
+          name: 'share_box_frm',
+          url: '../common/share_box_frm.html',
+          rect: {
+            x: 0,
+            y: 0,
+            w: 'auto',
+            h: 'auto'
+          },
+          animation: {
+            type: 'fade'
+          }
+        });
+      },
+      openCommentInputFrame: function openCommentInputFrame() {
+        api.openFrame({
+          name: 'comment_input_frm',
+          url: '../common/comment_input_frm.html',
+          rect: {
+            x: 0,
+            y: 0,
+            w: 'auto',
+            h: 'auto'
+          },
+          pageParam: {
+            url: 'appcomment/comment',
+            params: {
+              id: this.news.id,
+              user_id: 100000,
+              type: 0
+            },
+            from: api.frameName,
+            callback: 'fnSubmitCommentCallback',
+            callbackParams: {}
+          }
+        });
+      },
+      toAuthor: function toAuthor(id) {
+        console.log(id);
+        api.openWin({
+          name: 'author_win',
+          url: '../author/author_win.html',
+          bounces: false,
+          pageParam: {
+            id: id
+          }
+        });
+      }
+    }
+  });
+
+  apiready = function apiready() {
+    vm.init();
+  };
+</script>
+
+</html>

@@ -1,0 +1,239 @@
+<!doctype html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,initial-scale=1.0,width=device-width" />
+  <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+  <link rel="stylesheet" type="text/css" href="../../css/aui/aui.css" />
+  <link rel="stylesheet" href="../../css/custom/common.css">
+  <link rel="stylesheet" href="../../css/custom/page/search.css">
+</head>
+
+<body>
+  <div id="app" v-cloak>
+    <header id="head" class="aui-bar aui-bar-nav aui-bar-light">
+      <!-- <div class="aui-title" style="left: .5rem; right: .5rem;"> -->
+      <div class="aui-searchbar" id="search">
+        <form action="javascript: callSearch()" class="aui-searchbar-input aui-border-radius">
+          <input type="search" placeholder="搜索你想要的" id="search-input" v-model="keywords">
+          <div class="aui-searchbar-clear-btn">
+            <i class="aui-iconfont aui-icon-close"></i>
+          </div>
+        </form>
+        <div class="aui-searchbar-btn" tapmode style="margin-right: 0">取消</div>
+      </div>
+      <!-- </div> -->
+    </header>
+
+    <div class="aui-content search-extra">
+      <div class="search-extra__head">
+        <span>热门搜索</span>
+      </div>
+      <div class="search-extra__body">
+        <div v-for="(el, i) in hots" :key="i" class="search-hots__tag aui-ellipsis-1" @click="toSearchRes(el, 0)">{{ el
+          }}</div>
+      </div>
+    </div>
+
+    <div class="aui-content search-extra" v-show="isHasHistory">
+      <div class="search-extra__head">
+        <span>历史搜索</span>
+        <!-- <i class="iconfont icon-shanchu" @click="clearHistory"></i> -->
+      </div>
+      <div class="search-extra__body">
+        <div v-for="(his, i) in wordHistory" :key="i" class="cell search-history__tag hairline" @click="toSearchRes(his, 0)">
+          <div class="cell__title aui-ellipsis-1">{{ his }}</div>
+          <div class="cell__value gray"><i class="aui-iconfont aui-icon-close" @click.stop="removeHistory(i)"></i></div>
+        </div>
+        <div v-show="wordHistory.length" class="search-history__clear" @click="clearHistory">清除搜索历史</div>
+      </div>
+    </div>
+  </div>
+</body>
+<script type="text/javascript" src="../../script/api.js"></script>
+<script src="../../script/vue/vue.js"></script>
+<script type="text/javascript">
+  function _toConsumableArray(arr) {
+    if (Array.isArray(arr)) {
+      for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) {
+        arr2[i] = arr[i];
+      }
+      return arr2;
+    } else {
+      return Array.from(arr);
+    }
+  }
+
+  var data = {
+    keywords: '',
+    wordHistory: [],
+    hots: [],
+    isHasHistory: false
+  };
+
+  var vm = new Vue({
+    el: '#app',
+    data: data,
+    methods: {
+      fetchProps: function fetchProps() {
+        this.wordHistory = [].concat(_toConsumableArray(this.getKeywordsHistory()));
+        this.hots = [].concat(_toConsumableArray(api.pageParam.topSearch));
+      },
+      fetchData: function fetchData() {},
+      init: function init() {
+        this.fetchProps();
+        // this.fetchData();
+        this.isHasHistory = this.wordHistory.length !== 0;
+      },
+      onSearch: function onSearch() {
+        var keywords = this.keywords;
+        this.pushHistoryToLocal(keywords);
+        this.toSearchRes(keywords);
+      },
+      pushHistoryToLocal: function pushHistoryToLocal(words) {
+        var keywords = words.trim();
+        var index = this.wordHistory.indexOf(keywords);
+        // var currentHistory = this.wordHistory;
+        // var localHistory = this.getKeywordsHistory();
+        // console.log(index)
+
+        if (keywords && index < 0) {
+          this.wordHistory.unshift(keywords); // 从数组头插入
+        } else if (keywords && index >= 0) {
+          this.wordHistory.splice(index, 1);
+          this.wordHistory.unshift(keywords);
+        }
+
+        this.isHasHistory = this.wordHistory.length !== 0;
+
+        // 限制最多5条记录
+        if (this.wordHistory.length > 5) this.wordHistory.pop();
+
+        window.localStorage.setItem('search_words', this.wordHistory.join('|'));
+      },
+      getKeywordsHistory: function getKeywordsHistory() {
+        // var list = $api.getStorage('search_words');
+        var list = window.localStorage.getItem('search_words');
+        // console.log(list.split('|'))
+        return list ? list.split('|') : [];
+      },
+      removeHistory: function removeHistory(index) {
+        this.wordHistory.splice(index, 1);
+        window.localStorage.setItem('search_words', this.wordHistory.join('|'));
+      },
+      clearHistory: function clearHistory() {
+        var _this = this;
+
+        if (this.wordHistory.length) {
+          api.confirm({
+            title: '',
+            msg: '确定清空历史记录吗',
+            buttons: ['确定', '再想想']
+          }, function (ret, err) {
+            if (ret.buttonIndex == 1) {
+              _this.wordHistory = [];
+              // $api.setStorage('search_words', '');
+              window.localStorage.setItem('search_words', '');
+            }
+          });
+        }
+      },
+      toSearchRes: function toSearchRes(words) {
+        var type = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 1;
+
+        console.log(type);
+        if (type) this.keywords = words.trim();
+        else this.pushHistoryToLocal(words);
+        // console.log(this.keywords);
+        api.openWin({
+          name: 'search_res_win',
+          url: '../search_res/search_res_win.html',
+          bounces: false,
+          pageParam: {
+            keywords: words.trim()
+          }
+        });
+      }
+    }
+  });
+
+  apiready = function apiready() {
+    vm.init();
+    // document.body.addEventListener('touchstart', function () {});
+
+    var header = $api.byId('head');
+    $api.fixStatusBar(header);
+
+    setTimeout(function () {
+      autoFocusInput();
+    }, 300);
+  };
+
+  function autoFocusInput() {
+<!--    var softInput = api.require('softInputMgr');-->
+<!--    alert(softInput)-->
+<!--    softInput.toggleKeyboard();-->
+
+    document.getElementById("search-input").focus();
+  }
+
+  var searchBar = document.querySelector(".aui-searchbar");
+  var searchBarInput = document.querySelector(".aui-searchbar input");
+  var searchBarBtn = document.querySelector(".aui-searchbar .aui-searchbar-btn");
+  var searchBarClearBtn = document.querySelector(".aui-searchbar .aui-searchbar-clear-btn");
+  // console.log(searchBarClearBtn)
+
+  if (searchBar) {
+    /* searchBarInput.onblur = function (event) {
+       searchBarClearBtn.style.display = 'none';
+      searchBarBtn.textContent = "取消";
+    }; */
+    /* searchBarInput.onfocus = function () {
+      if (this.value.length) {
+        searchBarClearBtn.style.display = 'block';
+        searchBarBtn.textContent = "搜索";
+      }
+    }; */
+    searchBarInput.oninput = function () {
+      if (this.value.length) {
+        searchBarClearBtn.style.display = 'block';
+        searchBarBtn.textContent = "搜索";
+      } else {
+        searchBarClearBtn.style.display = 'none';
+        searchBarBtn.textContent = "取消";
+      }
+    };
+  }
+
+  searchBarClearBtn.onclick = function () {
+    console.log('clear');
+    this.style.display = 'none';
+    searchBarInput.value = '';
+    searchBarBtn.textContent = "取消";
+  };
+
+  searchBarBtn.onclick = function () {
+    var keywords = searchBarInput.value;
+    if (keywords.length) {
+      callSearch();
+      // searchBarInput.focus();
+    } else {
+      // searchBarInput.value = '';
+      // searchBarInput.blur();
+      onCloseWin();
+    }
+  };
+
+  function callSearch() {
+    if (searchBarInput.value) {
+      vm.onSearch();
+    }
+  }
+
+  function onCloseWin() {
+    api.closeWin();
+  }
+</script>
+
+</html>

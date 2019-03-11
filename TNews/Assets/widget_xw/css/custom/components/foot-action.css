@@ -1,0 +1,61 @@
+/* 
+ * 新闻详情页面底部操作栏公用样式
+ */
+
+.action-bar {
+  display: flex;
+  justify-content: space-between;
+  position: relative;
+  padding: 0 .5rem;
+  height: 60px;
+  background: #fff;
+}
+
+.action-bar.hairline::after {
+  border-color: #bfc6ce;
+  border-top-width: 1px;
+}
+
+.action-bar__item {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.action-bar__item .action-bar__icon {
+  width: 1rem;
+  transition: width .15s;
+}
+
+.action-bar__item .action-bar__icon.toggling {
+  width: 1.2rem;
+}
+
+.action-bar__item .aui-badge {
+  top: 10px;
+  background-color: transparent;
+  color: rgb(102, 102, 102);
+}
+
+.action-bar__item.comment-input {
+  flex: 3;
+}
+
+.comment-input__wrap {
+  padding-left: .5rem;
+  width: 100%;
+  height: 1.5rem;
+  background: rgb(238, 238, 238);
+  border-radius: .2rem;
+  text-align: left;
+  line-height: 1.5rem;
+  font-size: .7rem;
+  color: rgb(160, 160, 160);
+  transition: background .3s;
+}
+
+.comment-input__wrap:active {
+  background: rgb(220, 220, 220);
+}

@@ -1,0 +1,142 @@
+<!DOCTYPE HTML>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="maximum-scale=1.0, minimum-scale=1.0, user-scalable=0, initial-scale=1.0, width=device-width" />
+  <meta name="format-detection" content="telephone=no, email=no, date=no, address=no">
+  <link rel="stylesheet" type="text/css" href="../../css/aui/aui.css" />
+  <link rel="stylesheet" href="../../css/custom/common.css">
+  <style>
+    body {
+      background: transparent;
+    }
+    .aui-mask {
+      opacity: 0;
+      -webkit-transition: opacity .3s;
+      transition: opacity .3s;
+    }
+    .share-box {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      background-color: #f3f3f3;
+      border-top-left-radius: .75rem;
+      border-top-right-radius: .75rem;
+      z-index: 999;
+      opacity: 0;
+      -webkit-transition: opacity .3s;
+      transition: opacity .3s;
+    }
+    .share-box__head {
+      text-align: center;
+    }
+    .share-box__head > div {
+      height: 2.5rem;
+      line-height: 2.5rem;
+      font-size: .75rem;
+      color: #999999;
+    }
+    .share-box__body {
+      padding: 0 .75rem .75rem;
+    }
+    .share-box__body .aui-grid {
+      background-color: transparent;
+    }
+    .share-box__body .aui-grid [class*=aui-col-xs-]:active {
+      background-color: inherit;
+    }
+    .share-box__icon {
+      margin: 0 auto;
+      width: 1.5rem;
+    }
+    .share-box__foot {
+      background-color: #fff;
+      text-align: center;
+    }
+    .share-box__foot > div {
+      height: 3rem;
+      line-height: 3rem;
+      font-size: .75rem;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="aui-mask aui-mask-in">
+  </div>
+  <section id="app" class="aui-content share-box" v-cloak>
+    <header class="share-box__head">
+      <div>分享到</div>
+    </header>
+    <main class="share-box__body">
+      <section class="aui-grid">
+        <div class="aui-row">
+          <div v-for="(el, i) in types" :key="i" class="aui-col-xs-3" @click="onShare(i)">
+            <div class="share-box__icon"><img :src="el.icon"></div>
+            <!-- <i class="aui-iconfont aui-icon-wechat"></i> -->
+            <div class="aui-grid-label gray">{{ el.title }}</div>
+          </div>
+        </div>
+      </section>
+    </main>
+    <footer class="share-box__foot">
+      <div class="gray" onclick="clickOutside()">取消</div>
+    </footer>
+  </section>
+</body>
+<script type="text/javascript" src="../../script/api.js"></script>
+<script src="../../script/vue/vue.js"></script>
+<script type="text/javascript">
+  var data = {
+    types: [{
+      icon: '../../icon/wechat.png',
+      title: '微信好友'
+    }, {
+      icon: '../../icon/wechat-friend.png',
+      title: '朋友圈'
+    }, {
+      icon: '../../icon/weibo.png',
+      title: '新浪微博'
+    }, {
+      icon: '../../icon/qq.png',
+      title: 'QQ'
+    }]
+  };
+
+  var vm = new Vue({
+    el: '#app',
+    data: data,
+    methods: {
+      onShare: function onShare(i) {
+        alert('分享到' + this.types[i].title);
+
+        clickOutside();
+      }
+    }
+  });
+
+  apiready = function apiready() {
+    var box = document.querySelector('.share-box');
+    var mask = document.querySelector('.aui-mask');
+
+    $api.css(box, 'opacity: 1;');
+    $api.css(mask, 'opacity: 1;');
+    mask.onclick = clickOutside;
+  };
+
+  function clickOutside() {
+    var box = document.querySelector('.share-box'),
+        mask = document.querySelector('.aui-mask');
+
+    $api.css(box, 'opacity: 0;');
+    $api.css(mask, 'opacity: 0;');
+
+    setTimeout(function () {
+      api.closeFrame({});
+    }, 300);
+  }
+</script>
+
+</html>

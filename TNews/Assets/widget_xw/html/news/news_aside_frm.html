@@ -1,0 +1,272 @@
+<!DOCTYPE HTML>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="maximum-scale=1.0, minimum-scale=1.0, user-scalable=0, initial-scale=1.0, width=device-width" />
+  <meta name="format-detection" content="telephone=no, email=no, date=no, address=no">
+  <link rel="stylesheet" type="text/css" href="../../css/aui/aui.css" />
+  <link rel="stylesheet" href="../../css/custom/common.css">
+  <link rel="stylesheet" href="../../css/custom/components/aside.css">
+</head>
+
+<body>
+  <div class="aui-mask aui-mask-in">
+  </div>
+  <div id="app" class="aui-content aside" v-cloak>
+    <ul class="aside__list">
+      <li class="aside__item light">
+        <div class="cell hairline" @click="toChargeChannel">
+          <div class="cell__title"><i class="aui-iconfont aui-icon-edit"></i>&nbsp;&nbsp;管理我的频道</div>
+        </div>
+      </li>
+      <li class="aside__item light" @click="changeNewsBar(0)">
+        <div class="cell hairline">
+          <div class="cell__title">首页&nbsp;&nbsp;Index</div>
+        </div>
+      </li>
+      <!-- <li class="aside__item light" @click="changeNewsBar(1)">
+        <div class="cell hairline">
+          <div class="cell__title">我的&nbsp;&nbsp;MyNews</div>
+        </div>
+      </li> -->
+      <li v-for="(el, i) in list" :key="i" class="aside__item light" @click="toggleMenuDropdown(i)">
+        <div class="cell hairline">
+          <div class="cell__title">{{ el.val }}&nbsp;&nbsp;{{ el.en_title }}</div>
+          <div class="cell__value" v-if="el.next_class_info.have_next_type">
+            <i class="aui-iconfont" :class="el.next_class_info.drop_flag ? 'aui-icon-top' : 'aui-icon-down'"></i>
+          </div>
+        </div>
+        <ul class="aside__drop" v-if="el.next_class_info.have_next_type" v-show="el.next_class_info.drop_flag">
+          <li class="hairline" v-for="(item, j) in el.next_class_info.next_class" :key="j" @click.stop="toChannel(item)">{{
+            item.val }}</li>
+        </ul>
+      </li>
+    </ul>
+  </div>
+</body>
+<script type="text/javascript" src="../../script/api.js"></script>
+<script src="../../script/vue/vue.js"></script>
+<script type="text/javascript">
+  var _extends = Object.assign || function (target) {
+    for (var i = 1; i < arguments.length; i++) {
+      var source = arguments[i];
+      for (var key in source) {
+        if (Object.prototype.hasOwnProperty.call(source, key)) {
+          target[key] = source[key];
+        }
+      }
+    }
+    return target;
+  };
+
+  function _toConsumableArray(arr) {
+    if (Array.isArray(arr)) {
+      for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) {
+        arr2[i] = arr[i];
+      }
+      return arr2;
+    } else {
+      return Array.from(arr);
+    }
+  }
+
+  var data = {
+    menu: [],
+    list: []
+  };
+  var mask, asideDom;
+
+  var vm = new Vue({
+    el: '#app',
+    data: data,
+    /* computed: {
+      resMenu() {
+        var res = [];
+        this.list.forEach(el => {
+          if (el.next_class_info.next_class.length) {
+            el.next_class_info.drop_flag = false;
+          }
+          res.push(el);
+        });
+         return res;
+      }
+    }, */
+    methods: {
+      fetchProps: function fetchProps() {
+        var arr = [].concat(_toConsumableArray(api.pageParam.menu));
+        // console.log(JSON.stringify(api.pageParam.menu))
+
+        arr.forEach(function (el) {
+          if (el.next_class_info.have_next_type) {
+            el.next_class_info.drop_flag = false;
+          }
+        });
+        this.list = [].concat(_toConsumableArray(arr));
+        // console.log(JSON.stringify(this.list))
+      },
+
+      /* fetchData() {
+        var arr = [{
+          title: '商业',
+          title_en: 'Business',
+          sub: [{
+            title: '商业'
+          }, {
+            title: '科技'
+          }, {
+            title: '地产'
+          }, {
+            title: '汽车'
+          }, ]
+        }, {
+          title: '财经',
+          title_en: 'Financial',
+          sub: [{
+            title: '财经'
+          }, {
+            title: '金融'
+          }, {
+            title: '投资'
+          }, ]
+        }, {
+          title: '新闻',
+          title_en: 'News',
+          sub: [{
+            title: '新闻'
+          }, {
+            title: '天下'
+          }, {
+            title: '中国'
+          }, ]
+        }, {
+          title: '文化生活',
+          title_en: 'Life&Culture',
+          sub: [{
+            title: '正午'
+          }, {
+            title: '文化'
+          }, {
+            title: '箭厂'
+          }, ]
+        }, {
+          title: '其他',
+          title_en: 'More',
+          sub: [{
+            title: '其他1'
+          }, {
+            title: '其他2'
+          }, {
+            title: '其他3'
+          }, ]
+        }];
+         arr.forEach(el => {
+          if (el.sub.length) {
+            el.drop_flag = false;
+          }
+          this.menu.push(el);
+        });
+      }, */
+      init: function init() {
+        this.fetchProps();
+        // this.fetchData();
+      },
+      changeNewsBar: function changeNewsBar(index) {
+        api.execScript({
+          frameName: 'news_bar',
+          script: 'vm.onTabChange(' + index + ');'
+        });
+
+        clickOutside();
+      },
+      toggleMenuDropdown: function toggleMenuDropdown(i) {
+        this.list[i].next_class_info.drop_flag = !this.list[i].next_class_info.drop_flag;
+      },
+      toChannel: function toChannel(el) {
+        console.log(JSON.stringify(el));
+        api.openWin({
+          name: 'news_channel_' + el.id + '_win',
+          url: '../news_channel/news_channel_win.html',
+          bounces: false,
+          pageParam: {
+            channel: _extends({}, el)
+          }
+        });
+      },
+      fnChargeChannelCallback: function fnChargeChannelCallback(ids) {
+        var _this = this;
+
+        console.log('回调到我了');
+        console.log(JSON.stringify(ids));
+        var tabs = [];
+
+        // 根据修改结果调整侧栏新闻频道sign字段值, 1-添加, 0-未添加
+        this.fnResetChargeChannelSign();
+        ids.forEach(function (id) {
+          _this.list.forEach(function (el) {
+            el.next_class_info.next_class.forEach(function (item) {
+              if (item.id === id) {
+                item.sign = 1;
+                tabs.push(item);
+              }
+            });
+          });
+        });
+        // console.log(JSON.stringify(this.list))
+
+        // 调整顶栏tab导航, 以及动态增减tab标签页
+        var script = 'vm.fnResetFrameGroup(' + JSON.stringify(tabs) + ')';
+        api.execScript({
+          // frameName: 'news_bar',
+          script: script
+        });
+      },
+      fnResetChargeChannelSign: function fnResetChargeChannelSign() {
+        this.list.forEach(function (el) {
+          el.next_class_info.next_class.forEach(function (item) {
+            item.sign = 0;
+          });
+        });
+      },
+      toChargeChannel: function toChargeChannel() {
+        api.openWin({
+          name: 'charge_channel_win',
+          url: '../charge_channel/charge_channel_win.html',
+          bounces: false,
+          pageParam: {
+            menu: [].concat(_toConsumableArray(this.list))
+          }
+        });
+      }
+    }
+  });
+
+  apiready = function apiready() {
+    vm.init();
+    mask = document.querySelector('.aui-mask');
+    asideDom = document.querySelector('.aside');
+
+    asideAppear();
+    mask.onclick = clickOutside;
+  };
+
+  function asideAppear() {
+    $api.css(asideDom, 'transform: translate3d(0,0,0);-webkit-transform: translate3d(0,0,0);');
+    $api.css(mask, 'opacity: 1;');
+  }
+
+  function clickOutside() {
+    $api.css(asideDom, 'transform: translate3d(-100%,0,0);-webkit-transform: translate3d(-100%,0,0);');
+    $api.css(mask, 'opacity: 0;');
+
+    setTimeout(function () {
+      // api.closeFrame({});
+
+      api.execScript({
+        script: 'hideAsideFrm();'
+      });
+    }, 500);
+  }
+</script>
+
+</html>

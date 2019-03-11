@@ -1,0 +1,72 @@
+/* 
+ * 频道管理页样式
+ */
+
+.my-clannels__title.cell {
+  background-color: transparent;
+}
+
+.my-clannels__title .cell__value span {
+  padding: .2rem .4rem;
+  border: 1px solid #c6c6c6;
+  border-radius: 1rem;
+  font-size: .6rem;
+}
+
+.my-clannels__title .cell__value span:not(:last-child) {
+  margin-right: .5rem;
+}
+
+.my-channels__sub {
+  display: flex;
+  flex-wrap: wrap;
+  padding: .5rem;
+  background-color: #fff;
+}
+
+.channels-list {
+  margin-top: 2.2rem;
+}
+
+.channel {
+  padding: 0 .5rem;
+  background-color: #fff;
+}
+
+.channel:last-child {
+  padding-bottom: .75rem;
+}
+
+.channel__title {
+  height: 2.25rem;
+  line-height: 2.25rem;
+  color: #7f7f7f;
+}
+
+.channel__sub {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.channel__tag {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 0 3% .5rem 0;
+  padding: 0 .5rem;
+  width: 30%;
+  height: 1.5rem;
+  border: 1px solid #cdcdcd;
+  border-radius: 1.5rem;
+  font-size: .7rem;
+  color: #000;
+}
+
+.channel__tag-icon {
+  width: .9rem;
+  height: .9rem;
+}
+
+.channel__tag-icon img {
+  max-height: 100%;
+}

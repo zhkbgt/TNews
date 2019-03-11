@@ -9,7 +9,7 @@
 Pod::Spec.new do |s|
   s.name             = 'TNews'
   s.version          = '0.1.0'
-  s.summary          = 'A short description of TNews.'
+  s.summary          = 'AAA'
 
 # This description is used to generate tags and improve search results.
 #   * Think: What does it do? Why did you write it? What is the focus?
@@ -18,7 +18,7 @@ Pod::Spec.new do |s|
 #   * Finally, don't worry about the indent, CocoaPods strips it!
 
   s.description      = <<-DESC
-TODO: Add long description of the pod here.
+TODO: Add long description of the pod here. AAA
                        DESC
 
   s.homepage         = 'https://github.com/zhkbgt/TNews'
@@ -28,15 +28,15 @@ TODO: Add long description of the pod here.
   s.source           = { :git => 'https://github.com/zhkbgt/TNews.git', :tag => s.version.to_s }
   # s.social_media_url = 'https://twitter.com/<TWITTER_USERNAME>'
 
-  s.ios.deployment_target = '8.0'
+  s.ios.deployment_target = '9.0'
 
   s.source_files = 'TNews/Classes/**/*'
   
-  # s.resource_bundles = {
-  #   'TNews' => ['TNews/Assets/*.png']
-  # }
+  s.resource_bundles = {
+     'TNews' => ['TNews/Assets/*']
+  }
 
-  # s.public_header_files = 'Pod/Classes/**/*.h'
-  # s.frameworks = 'UIKit', 'MapKit'
-  # s.dependency 'AFNetworking', '~> 2.3'
+  #s.public_header_files = 'Pod/Classes/**/*.h'
+  #s.frameworks = 'UIKit', 'MapKit'
+  s.dependency 'TGCommunity', '~> 0.1.3'
 end

@@ -1,0 +1,79 @@
+<!DOCTYPE HTML>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="maximum-scale=1.0, minimum-scale=1.0, user-scalable=0, initial-scale=1.0, width=device-width" />
+  <meta name="format-detection" content="telephone=no, email=no, date=no, address=no">
+  <link rel="stylesheet" type="text/css" href="../../css/aui/aui.css" />
+  <link rel="stylesheet" href="../../css/custom/common.css">
+  <style></style>
+</head>
+
+<body>
+  <header id="head" class="aui-bar aui-bar-nav aui-bar-light">
+    <a class="aui-btn aui-pull-left" tapmode onclick="onCloseWin()">
+      <img src="../../icon/ico_back.png" width="18">
+    </a>
+    <a class="aui-btn aui-pull-right" tapmode>
+      <img src="../../icon/ico_export.png" width="18">
+    </a>
+  </header>
+</body>
+<script type="text/javascript" src="../../script/api.js"></script>
+<script src="../../script/ajax.js"></script>
+<script type="text/javascript">
+  var _extends = Object.assign || function (target) {
+    for (var i = 1; i < arguments.length; i++) {
+      var source = arguments[i];
+      for (var key in source) {
+        if (Object.prototype.hasOwnProperty.call(source, key)) {
+          target[key] = source[key];
+        }
+      }
+    }
+    return target;
+  };
+
+  apiready = function apiready() {
+    api.parseTapmode();
+
+    var header = $api.byId('head');
+    $api.fixStatusBar(header);
+
+    var header_h = $api.offset(header).h;
+
+    var id = api.pageParam.id;
+
+    setTimeout(function () {
+      // 延迟300ms, 避免loadin动画加载失败
+      $ajax_post('appauthor/news_author', {
+        author_id: id,
+        user_id: 100000
+      }, function (res) {
+        var info = _extends({}, res);
+
+        api.openFrame({
+          name: 'author_frm',
+          url: './author_frm.html',
+          bounces: false,
+          rect: {
+            x: 0,
+            y: header_h,
+            w: 'auto',
+            h: 'auto'
+          },
+          pageParam: {
+            info: info
+          }
+        });
+      });
+    }, 300);
+  };
+
+  function onCloseWin() {
+    api.closeWin();
+  }
+</script>
+
+</html>

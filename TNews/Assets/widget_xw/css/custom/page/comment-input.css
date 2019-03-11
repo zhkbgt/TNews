@@ -1,0 +1,71 @@
+/* 
+ * 评论输入页面样式
+ */
+
+body {
+  background: transparent;
+}
+
+.aui-mask {
+  -webkit-transition: -webkit-transform .3s;
+  transition: transform .3s;
+  -webkit-transform: translate3d(0, 100%, 0);
+  transform: translate3d(0, 100%, 0);
+}
+
+.c-input {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  background-color: inherit;
+  z-index: 999;
+  opacity: 0;
+  -webkit-transition: opacity .3s, -webkit-transform .3s;
+  transition: opacity .3s, transform .3s;
+  -webkit-transform: translate3d(0, 100%, 0);
+  transform: translate3d(0, 100%, 0);
+}
+
+.c-input__wrap {
+  padding: .75rem;
+  background: #f6f6f6;
+  border-top-left-radius: 10px;
+  border-top-right-radius: 10px;
+}
+
+.c-input__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: .6rem;
+}
+
+.c-input__submit {
+  font-size: .65rem;
+}
+
+.c-input__body {
+  margin-top: .5rem;
+  background: #fff;
+  border: 1px solid #ddd;
+}
+
+.c-input__body textarea {
+  margin: .2rem 0;
+  padding: 0 .2rem;
+  width: 100%;
+  height: auto;
+  line-height: 1rem;
+  font-size: .7rem;
+  overflow: auto;
+  resize: none;
+}
+
+.c-input__body textarea::-webkit-input-placeholder {
+  color: #707070;
+}
+
+.active {
+  color: #ec4753;
+}

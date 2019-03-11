@@ -1,0 +1,239 @@
+<!DOCTYPE HTML>
+<html>
+
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="maximum-scale=1.0, minimum-scale=1.0, user-scalable=0, initial-scale=1.0, width=device-width" />
+	<meta name="format-detection" content="telephone=no, email=no, date=no, address=no">
+	<link rel="stylesheet" type="text/css" href="../../css/aui/aui.css" />
+	<link rel="stylesheet" href="../../css/swiper/@3.4.2/swiper.min.css">
+	<link rel="stylesheet" href="../../script/vant/index.css">
+	<link rel="stylesheet" href="../../css/custom/common.css">
+	<link rel="stylesheet" href="../../css/custom/components/news-list.css">
+	<script src="../../script/vue/vue.js"></script>
+	<script src="../../script/vant/vant.min.js"></script>
+</head>
+
+<body>
+	<div id="app" v-cloak>
+		<!-- 下拉刷新和上滑加载组件 -->
+		<van-pull-refresh v-model="refreshLoading" @refresh="onRefresh">
+			<!-- 轮播图 -->
+			<section class="slides">
+				<div id="banner" class="swiper-container slides__list">
+					<div class="swiper-wrapper">
+						<div v-for="(el, i) in banner" :key="i" class="swiper-slide slides__item">
+							<div class="slides__item-img">
+								<div class="slides__item-mask"></div>
+								<v-img :url="el.img_url" err="../../image/default.png"></v-img>
+								<!-- <img :src="el.img_url"> -->
+							</div>
+							<div class="slides__item-title">{{ el.title }}</div>
+						</div>
+					</div>
+					<!-- 分页器 -->
+					<div class="swiper-pagination"></div>
+				</div>
+			</section>
+			<!-- END -->
+			<!-- 新闻列表 -->
+			<van-list class="news list" v-model="infiniteLoading" :finished="infiniteFinished" :immediate-check="false" :offset="50"
+			 @load="onLoad">
+				<template v-for="(el, i) in news">
+					<div class="news__panel hairline" v-if="(i + 1) % 4 !== 0" @click="toNewsDetail(el.id)">
+						<div class="news__thumb">
+							<!-- <img :src="el.cover"> -->
+							<v-img :url="el.cover" err="../../image/default.png"></v-img>
+						</div>
+						<div class="news__content">
+							<div class="news__title aui-ellipsis-2 dark">{{ el.title }}</div>
+							<div class="flex-between">
+								<div class="news__author">
+									<div class="gray aui-ellipsis-1">{{ el.author }}</div><span>|</span>{{ el.timestamp | interval-time }}
+								</div>
+								<div class="news__params">
+									<div v-if="el.comments !== 0">
+										<img src="../../icon/ico_message.png">{{ el.comments | views }}
+									</div>
+									<div v-if="el.looks !== 0">
+										<img src="../../icon/icon_view.png">{{ el.looks | views }}
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="news__panel-full hairline" v-else @click="toNewsDetail(el.id)">
+						<div class="news__thumb-full">
+							<!-- <img :src="el.cover"> -->
+							<v-img :url="el.cover" err="../../image/default.png" :height="videoHeight"></v-img>
+						</div>
+						<div class="news__content-full">
+							<div class="news__title aui-ellipsis-2 dark">{{ el.title }}</div>
+							<div class="flex-between">
+								<div class="news__author">
+									<div class="gray aui-ellipsis-1">{{ el.author }}</div><span>|</span>{{ el.timestamp | interval-time }}
+								</div>
+								<div class="news__params">
+									<div v-if="el.comments !== 0">
+										<img src="../../icon/ico_message.png">{{ el.comments | views }}
+									</div>
+									<div v-if="el.looks !== 0">
+										<img src="../../icon/icon_view.png">{{ el.looks | views }}
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</template>
+				<!-- 占位，优化上滑loading时的过渡 -->
+				<div style="height: 50px" v-show="!infiniteLoading && !infiniteFinished"></div>
+				<!-- END -->
+				<div v-if="infiniteFinished" class="load-more">-- 没有更多 --</div>
+			</van-list>
+			<!-- END -->
+		</van-pull-refresh>
+		<!-- END -->
+	</div>
+</body>
+<script type="text/javascript" src="../../script/api.js"></script>
+<script src="../../script/vue/components.js"></script>
+<script src="../../script/vue/filter.js"></script>
+<script src="../../script/ajax.js"></script>
+<script src="../../script/swiper/@3.4.2/swiper.js"></script>
+<script type="text/javascript">
+	function _toConsumableArray(arr) {
+		if (Array.isArray(arr)) {
+			for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) {
+				arr2[i] = arr[i];
+			}
+			return arr2;
+		} else {
+			return Array.from(arr);
+		}
+	}
+
+	var data = {
+		id: null,
+		banner: [],
+		news: [],
+		page: 1, // 初始页码 (新闻列表分页使用)
+		pageCount: 12, // 每页新闻条数 (新闻列表分页使用)
+		refreshLoading: false,
+		infiniteLoading: false,
+		infiniteFinished: false,
+		videoHeight: 120, // 视频列表，封面图默认高度
+	};
+	var Banner = null; // 轮播图组件
+
+	var vm = new Vue({
+		el: '#app',
+		data: data,
+		methods: {
+			fetchProps: function fetchProps() {
+				this.id = Number(api.pageParam.id);
+			},
+			fetchData: function fetchData() {
+				var _this = this;
+
+				$ajax_post('appindex/news_for_class', {
+					user_id: 100000,
+					class_id: this.id,
+					page: this.page,
+					page_count: this.pageCount
+				}, function (res) {
+					res.new_list.forEach(function (el) {
+						_this.news.push(el);
+					});
+
+					// 当前page为1,初始加载,渲染banner;大于1判断是否是上滑加载
+					if (_this.page > 1) {
+						_this.infiniteLoading = false; // 控制加载结束
+						// if (res.bottom_key) this.infiniteFinished = true; // 已是最后一页
+					} else {
+						_this.refreshLoading = false;
+						_this.banner = [].concat(_toConsumableArray(res.banner));
+
+						setTimeout(function () {
+							_this.initBanner();
+						}, 100);
+					}
+
+					if (res.bottom_key) _this.infiniteFinished = true; // 已是最后一页
+				}, {
+					hideLoading: true
+				});
+			},
+			initBanner: function initBanner() {
+				Banner = new Swiper('#banner', {
+					autoplay: 3000,
+					autoplayDisableOnInteraction: false,
+					roundLengths: true,
+					loop: true,
+					pagination: '.swiper-pagination'
+				});
+			},
+			init: function init() {
+				this.fetchProps();
+
+				this.refreshLoading = true; // 开启下拉刷新效果
+				this.fetchData();
+			},
+			onRefresh: function onRefresh() {
+				var _this2 = this;
+
+				// 下拉刷新所有数据
+				this.page = 1; // 重置页码
+				this.infiniteFinished = false; // 重置上滑加载结束标志位
+
+				$ajax_post('appindex/news_for_class', {
+					user_id: 100000,
+					class_id: this.id,
+					page: this.page,
+					page_count: this.pageCount
+				}, function (res) {
+					_this2.refreshLoading = false; // 关闭下拉刷新效果
+
+					// 重置渲染数据
+					_this2.banner = [];
+					_this2.news = [];
+
+					res.new_list.forEach(function (el) {
+						_this2.news.push(el);
+					});
+					_this2.banner = [].concat(_toConsumableArray(res.banner));
+
+					Banner.slideTo(1, 0, false); // 重置轮播图index
+				}, {
+					hideLoading: true
+				});
+			},
+			onLoad: function onLoad() {
+				// 根据页码获取数据
+				this.page++;
+				this.fetchData();
+			},
+
+			toNewsDetail: function toNewsDetail(id) {
+				console.log(id);
+				api.openWin({
+					name: 'news_' + id + '_detail_win',
+					url: '../news_detail/news_detail_win.html',
+					bounces: false,
+					pageParam: {
+						id: id
+					}
+				});
+			}
+		},
+		mounted() {
+			this.videoHeight = document.body.clientWidth * 0.57;
+		},
+	});
+
+	apiready = function apiready() {
+		vm.init();
+		$api.css(document.querySelector('.van-pull-refresh'), 'min-height: ' + api.frameHeight + 'px');
+	};
+</script>
+
+</html>

@@ -1,0 +1,105 @@
+/* 
+ * 搜索结果页
+ */
+
+body {
+  background-color: #fff;
+}
+
+.aui-tab {
+  border: 0 solid #dbdbdb;
+  border-top-width: 1px;
+  border-bottom-width: 1px;
+}
+
+.aui-tab .aui-tab-item {
+  background-color: #f6f6f6;
+}
+
+.aui-tab .aui-tab-item span {
+  display: inline-block;
+  position: relative;
+}
+
+.aui-tab .aui-tab-item span::after {
+  content: '';
+  display: block;
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 3px;
+  background-color: transparent;
+}
+
+.aui-tab .aui-tab-item.aui-active {
+  color: #ec4753;
+  border-bottom: none;
+}
+
+.aui-tab .aui-tab-item.aui-active span::after {
+  background-color: #ec4753;
+}
+
+.tab-pane {
+  padding: 0 .5rem;
+}
+
+.article__panel {
+  display: flex;
+  position: relative;
+  padding: .75rem 0;
+}
+
+.article__thumb {
+  flex-shrink: 0;
+  position: relative;
+  margin-right: .5rem;
+  width: 125px;
+  height: 100px;
+}
+
+.article__thumb img {
+  height: 100%;
+}
+
+.article__content {
+  display: flex;
+  flex-flow: column;
+  justify-content: space-between;
+  width: 100%;
+  min-height: 60px;
+}
+
+/* .article__title {
+      padding-bottom: 1rem;
+    } */
+.article__content .flex-between {
+  font-size: .6rem;
+  color: #bfc6ce;
+}
+
+.article__params {
+  display: flex;
+}
+
+.article__params>div:not(:last-child) {
+  margin-right: .5rem;
+}
+
+.article__params img {
+  display: inline-block;
+  margin-right: .2rem;
+  width: .8rem;
+  height: .8rem;
+  vertical-align: middle;
+}
+
+.no-data {
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  padding: .75rem 0;
+  font-size: .65rem;
+  color: #cdcdcd;
+}

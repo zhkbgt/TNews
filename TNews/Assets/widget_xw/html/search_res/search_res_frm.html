@@ -1,0 +1,182 @@
+<!DOCTYPE HTML>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="maximum-scale=1.0, minimum-scale=1.0, user-scalable=0, initial-scale=1.0, width=device-width" />
+  <meta name="format-detection" content="telephone=no, email=no, date=no, address=no">
+  <link rel="stylesheet" type="text/css" href="../../css/aui/aui.css" />
+	<link rel="stylesheet" href="../../script/vant/index.css">
+  <link rel="stylesheet" href="../../css/custom/common.css">
+  <link rel="stylesheet" href="../../css/custom/page/search-res.css">
+	<script src="../../script/vue/vue.js"></script>
+	<script src="../../script/vant/vant.min.js"></script>
+</head>
+
+<body>
+  <div id="app" v-cloak>
+    <section class="tab-content">
+      <!-- 下拉刷新组件-新闻列表 -->
+      <van-pull-refresh class="tab-pane" v-model="refreshLoading" @refresh="onRefresh">
+        <div v-for="(el, i) in news" :key="i" class="article__panel hairline" @click="toNewsDetail(el.id)">
+          <div class="article__thumb">
+            <v-img :url="el.cover" err="../../image/default.png"></v-img>
+          </div>
+          <div class="article__content">
+            <div class="article__title aui-ellipsis-2 dark">{{ el.title }}</div>
+            <div class="flex-between">
+              <div>{{ el.author }}</div>
+              <div class="article__params">
+                <div>{{ el.timestamp | interval-time }}</div>
+                <div v-if="el.comments !== 0">
+                  <img src="../../icon/ico_message.png">{{ el.comments | views }}
+                </div>
+                <div v-if="el.browers !== 0">
+                  <img src="../../icon/icon_view.png">{{ el.browers | views }}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div v-if="!news.length && !refreshLoading" class="no-data">
+          <img src="../../image/no_data.png">
+          <p>暂无相关新闻</p>
+        </div>
+      </van-pull-refresh>
+      <!-- END -->
+    </section>
+  </div>
+</body>
+<script type="text/javascript" src="../../script/api.js"></script>
+<script src="../../script/vue/components.js"></script>
+<script src="../../script/vue/filter.js"></script>
+<script src="../../script/ajax.js"></script>
+<script type="text/javascript">
+  function _toConsumableArray(arr) {
+    if (Array.isArray(arr)) {
+      for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) {
+        arr2[i] = arr[i];
+      }
+      return arr2;
+    } else {
+      return Array.from(arr);
+    }
+  }
+
+  var data = {
+    /* tabs: [{
+      title: '新闻',
+      value: 0
+      , {
+        title: '视频',
+        value: 1
+      }, {
+        title: '音频',
+        value: 2
+      }
+    }], */
+    keywords: '',
+    news: [
+      /* {
+              author: 'lavca',
+              thumb: '',
+              title: '把吧巴拉巴拉巴拉巴拉巴拉',
+              time: 1541466215,
+              visit: 0,
+              comments: 0
+            }, {
+              author: 'lavca',
+              thumb: '../../image/thumb.jpg',
+              title: '把吧巴拉巴拉巴拉巴拉巴拉把吧巴拉巴拉巴拉巴拉巴拉把吧巴拉巴拉巴拉巴拉巴拉把吧巴拉巴拉巴拉巴拉巴拉',
+              time: 1541466215,
+              visit: 1200,
+              comments: 10000
+            }, {
+              title: '把吧巴拉巴拉巴拉巴拉巴拉',
+              author: 'lavca',
+              thumb: '',
+              time: 1541466215,
+              visit: 12,
+              comments: 2350
+            } */
+    ],
+    videos: [{
+      cover: '../../image/thumb2.jpg',
+      title: '猜测出对策传动侧而发愁岑成交额可乐鸡翅看了看猜测出对策传动侧而发愁岑成交额可乐鸡翅看了看',
+      time: 1541466215
+    }, {
+      cover: '../../image/thumb2.jpg',
+      title: '猜测出对策传动侧而发愁岑成交额可乐鸡翅看了看',
+      time: 1541466215
+    }, {
+      cover: '../../image/thumb2.jpg',
+      title: '猜测出对策传动侧而发愁岑成交额可乐鸡翅看了看',
+      time: 1541466215
+    }],
+    audios: [{
+      title: '谁偷了我的阳光彩虹小白马',
+      time: 1541466215,
+      comments: 123
+    }, {
+      title: '谁偷了我的阳光彩虹小白马',
+      time: 1541466215,
+      comments: 0
+    }, {
+      title: '谁偷了我的阳光彩虹小白马',
+      time: 1541466215,
+      comments: 123000
+    }],
+    isLoading: false,
+    refreshLoading: false,
+  };
+
+  var vm = new Vue({
+    el: '#app',
+    data: data,
+    methods: {
+      fetchProps: function fetchProps() {
+        this.keywords = api.pageParam.keywords;
+        console.log(this.keywords);
+      },
+      fetchData: function fetchData() {
+        var _this = this;
+
+        this.refreshLoading = true;
+        $ajax_post('appsearch/news_search', {
+          user_id: 100000,
+          content: this.keywords
+        }, function (res) {
+          _this.news = [].concat(_toConsumableArray(res.news_list));
+          _this.refreshLoading = false;
+        }, {
+          hideLoading: true
+        });
+      },
+      init: function init() {
+        this.fetchProps();
+        this.fetchData();
+      },
+      onRefresh: function onRefresh() {
+        this.fetchData();
+      },
+      toNewsDetail: function toNewsDetail(id) {
+        console.log(id);
+        api.openWin({
+          name: 'news_' + id + '_detail_win',
+          url: '../news_detail/news_detail_win.html',
+          bounces: false,
+          pageParam: {
+            id: id
+          }
+        });
+      }
+    }
+  });
+
+  apiready = function apiready() {
+    vm.init();
+    $api.css(document.querySelector('.van-pull-refresh__track'), 'min-height: ' + api.frameHeight + 'px;');
+  };
+</script>
+
+</html>

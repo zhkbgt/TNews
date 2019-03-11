@@ -1,0 +1,344 @@
+<!DOCTYPE HTML>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="maximum-scale=1.0, minimum-scale=1.0, user-scalable=0, initial-scale=1.0, width=device-width" />
+  <meta name="format-detection" content="telephone=no, email=no, date=no, address=no">
+  <link rel="stylesheet" type="text/css" href="../../css/aui/aui.css" />
+  <link rel="stylesheet" href="../../css/custom/common.css">
+  <link rel="stylesheet" href="../../css/custom/page/channel-charge.css">
+</head>
+
+<body>
+  <div id="app" v-cloak>
+    <section class="my-clannels">
+      <div class="my-clannels__title cell">
+        <div class="cell__title">我的频道</div>
+        <div class="cell__value">
+          <span @click="onSave">保存</span>
+          <span @click="isEdit = !isEdit">{{ isEdit ? '完成' : '编辑' }}</span>
+        </div>
+      </div>
+      <div class="my-channels__sub">
+        <div class="channel__tag">首页</div>
+        <!-- <div class="channel__tag">我的</div> -->
+        <div v-for="(el, i) in myChannels" :key="i" class="channel__tag">{{ el.val }}
+          <div class="channel__tag-icon" v-show="isEdit"><img src="../../icon/sub_channel.png" @click="rmFromMyChannels(el)"></div>
+        </div>
+      </div>
+    </section>
+    <section class="channels-list">
+      <!-- <div v-for="(el, i) in channels" :key="i" class="channel" v-show="fnIsAllSubAdded(el.sub)">
+        <div class="channel__title">{{ el.title }}&nbsp;&nbsp;{{ el.title_en }}</div>
+        <div class="channel__sub">
+          <div v-for="(item, j) in el.sub" :key="j" v-show="!item.isAdded" class="channel__tag">{{ item.title }}
+            <div class="channel__tag-icon"><img src="../../icon/add_channel.png" @click="addToMyChannels(i, j)"></div>
+          </div>
+        </div>
+      </div> -->
+      <div v-for="(el, i) in channels" :key="i" class="channel" v-show="fnIsAllSubAdded(el.next_class_info.next_class)">
+        <div class="channel__title">{{ el.val }}&nbsp;&nbsp;{{ el.en_title }}</div>
+        <div class="channel__sub">
+          <div v-for="(item, j) in el.next_class_info.next_class" :key="j" v-show="!item.sign" class="channel__tag">{{
+            item.val }}
+            <div class="channel__tag-icon"><img src="../../icon/add_channel.png" @click="addToMyChannels(i, j)"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+</body>
+<script type="text/javascript" src="../../script/api.js"></script>
+<script src="../../script/vue/vue.js"></script>
+<script src="../../script/ajax.js"></script>
+<script type="text/javascript">
+  function _toConsumableArray(arr) {
+    if (Array.isArray(arr)) {
+      for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) {
+        arr2[i] = arr[i];
+      }
+      return arr2;
+    } else {
+      return Array.from(arr);
+    }
+  }
+
+  var data = {
+    isEdit: false,
+    // isChange: false,
+    channels: [],
+    initChannels: [] // 记录初始 "我的频道" id
+  };
+
+  var vm = new Vue({
+    el: '#app',
+    data: data,
+    computed: {
+      myChannels: function myChannels() {
+        var my = [];
+        if (this.channels.length) {
+          this.channels.forEach(function (el, i) {
+            el.next_class_info.next_class.forEach(function (item, j) {
+              if (item.sign) {
+                var id = item.id,
+                  val = item.val,
+                  sign = item.sign;
+
+                my.push({
+                  id: id,
+                  val: val,
+                  sign: sign,
+                  index: i,
+                  sub_index: j
+                });
+              }
+            });
+          });
+        }
+        return my;
+      },
+      resChannels: function resChannels() {
+        // 记录 "我的频道" id
+        var res = [];
+        if (this.channels.length) {
+          this.channels.forEach(function (el) {
+            el.next_class_info.next_class.forEach(function (item) {
+              if (item.sign) res.push(item.id);
+            });
+          });
+        }
+        return res;
+      }
+    },
+    methods: {
+      fetchProps: function fetchProps() {
+        var _this = this;
+
+        // console.log(JSON.stringify(api.pageParam.menu))
+        this.channels = [].concat(_toConsumableArray(api.pageParam.menu));
+
+        this.channels.forEach(function (el) {
+          el.next_class_info.next_class.forEach(function (item) {
+            if (item.sign) _this.initChannels.push(item.id);
+          });
+        });
+        this.initChannels.sort(function (a, b) {
+          return a - b;
+        });
+      },
+
+      /* fetchData() {
+        var arr = [{
+          id: 1,
+          title: '商业',
+          title_en: 'Business',
+          sub: [{
+            id: 10,
+            title: '商业',
+            parent_id: 1,
+            isAdded: false
+          }, {
+            id: 11,
+            title: '科技',
+            parent_id: 1,
+            isAdded: false
+          }, {
+            id: 12,
+            title: '地产',
+            parent_id: 1,
+            isAdded: false
+          }, {
+            id: 13,
+            title: '汽车',
+            parent_id: 1,
+            isAdded: false
+          }]
+        }, {
+          id: 2,
+          title: '财经',
+          title_en: 'Financial',
+          sub: [{
+            id: 20,
+            title: '财经',
+            parent_id: 2,
+            isAdded: false
+          }, {
+            id: 21,
+            title: '金融',
+            parent_id: 2,
+            isAdded: false
+          }, {
+            id: 22,
+            title: '投资',
+            parent_id: 2,
+            isAdded: false
+          }, ]
+        }, {
+          id: 3,
+          title: '新闻',
+          title_en: 'News',
+          sub: [{
+            id: 30,
+            title: '新闻',
+            parent_id: 3,
+            isAdded: false
+          }, {
+            id: 31,
+            title: '天下',
+            parent_id: 3,
+            isAdded: false
+          }, {
+            id: 32,
+            title: '中国',
+            parent_id: 3,
+            isAdded: false
+          }, ]
+        }, {
+          id: 4,
+          title: '文化生活',
+          title_en: 'Life&Culture',
+          sub: [{
+            id: 40,
+            title: '正午',
+            parent_id: 4,
+            isAdded: false
+          }, {
+            id: 41,
+            title: '文化',
+            parent_id: 4,
+            isAdded: false
+          }, {
+            id: 42,
+            title: '箭厂',
+            parent_id: 4,
+            isAdded: false
+          }, ]
+        }, {
+          id: 5,
+          title: '其他',
+          title_en: 'More',
+          sub: [{
+            id: 50,
+            title: '其他1',
+            parent_id: 5,
+            isAdded: false
+          }, {
+            id: 51,
+            title: '其他2',
+            parent_id: 5,
+            isAdded: false
+          }, {
+            id: 52,
+            title: '其他3',
+            parent_id: 5,
+            isAdded: false
+          }]
+        }];
+         arr.forEach(el => {
+          this.channels.push(el)
+        });
+      }, */
+      init: function init() {
+        this.fetchProps();
+        // this.fetchData();
+      },
+
+      /* onEdit() {
+        this.isEdit = !this.isEdit;
+      }, */
+      onSave: function onSave() {
+        var _this2 = this;
+
+        var isChange = this.fnIsChange();
+        console.log(isChange);
+
+        if (isChange) {
+          var ids = this.resChannels.join(',');
+          console.log(ids);
+          $ajax_post('appindex/my_manager_class_save', {
+            user_id: 100000,
+            ids: ids
+          }, function (res) {
+            // 回调修改侧栏菜单数据
+            var script = 'vm.fnChargeChannelCallback(' + JSON.stringify(_this2.resChannels) + ')';
+            api.execScript({
+              name: 'root',
+              frameName: 'news_aside_frm',
+              script: script
+            });
+            api.toast({
+              msg: '保存成功',
+              duration: 1500,
+              location: 'bottom'
+            });
+
+            setTimeout(function () {
+              api.closeWin({});
+            }, 1500);
+          });
+        } else {
+          api.toast({
+            msg: '频道没有发生变化',
+            duration: 1500,
+            location: 'bottom'
+          });
+        }
+      },
+      fnIsChange: function fnIsChange() {
+        var _this3 = this;
+
+        // 检测 initChannels 和 resChannels 是否有区别
+        this.resChannels.sort(function (a, b) {
+          return a - b;
+        }); // 先排序, 保证循环对比的正确性
+
+        // console.log(JSON.stringify(this.initChannels))
+        // console.log(JSON.stringify(this.resChannels))
+
+        if (this.initChannels.length) {
+          if (this.resChannels.length) {
+            if (this.initChannels.length != this.resChannels.length) return true;
+            else {
+              var isChange = this.initChannels.every(function (el, i) {
+                if (el === _this3.resChannels[i]) {
+                  return true;
+                }
+              });
+              return !isChange;
+            }
+          } else return true;
+        } else {
+          if (this.resChannels.length) return true;
+          else return false;
+        }
+      },
+      addToMyChannels: function addToMyChannels(i, j) {
+        // this.channels[i].sub[j].isAdded = true;
+        this.channels[i].next_class_info.next_class[j].sign = true;
+      },
+      rmFromMyChannels: function rmFromMyChannels(el) {
+        // var {index: i, sub_index: j} = el;
+        // this.channels[i].sub[j].isAdded = false;
+        var i = el.index,
+          j = el.sub_index;
+
+        this.channels[i].next_class_info.next_class[j].sign = false;
+      },
+      fnIsAllSubAdded: function fnIsAllSubAdded(sub) {
+        var res = sub.every(function (el) {
+          if (el.sign) {
+            return true;
+          }
+        });
+        return !res;
+      }
+    }
+  });
+
+  apiready = function apiready() {
+    vm.init();
+  };
+</script>
+
+</html>
