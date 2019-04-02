@@ -8,7 +8,7 @@
 
 Pod::Spec.new do |s|
   s.name             = 'TNews'
-  s.version          = '0.1.6'
+  s.version          = '0.1.7'
   s.summary          = 'AAA'
 
 # This description is used to generate tags and improve search results.
@@ -40,5 +40,5 @@ TODO: Add long description of the pod here. AAA
 
   #s.public_header_files = 'Pod/Classes/**/*.h'
   #s.frameworks = 'UIKit', 'MapKit'
-  s.dependency 'TAPI'
+  s.dependency 'FAPI'
 end
