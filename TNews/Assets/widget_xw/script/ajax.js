@@ -4,7 +4,7 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
 
 // var baseUrl = 'http://www.sunsur.cn/TMFac-dev/public/index.php/zb02tmnews_usufe/'; // 服务器接口地址前缀
 // var baseUrl = 'http://192.168.0.113/TMFac-dev/Public/index.php/zb02tmnews_usufe/'; // 本地接口地址前缀
-// var baseUrl = 'http://www.sunsur.cn/thinkphp5/public/index.php/zb02tmnews_usufe/'; // 测试服务器地址
+//var baseUrl = 'http://www.sunsur.cn/thinkphp5/public/index.php/zb02tmnews_usufe/'; // 测试服务器地址
 var baseUrl = 'http://review.360tianma.com/lza01xwmk_vbfyu/'; // 测试服务器地址
 
 function $ajax_post(url, data, callback) {

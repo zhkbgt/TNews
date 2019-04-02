@@ -23,7 +23,7 @@
       <section class="slides">
         <div id="banner" class="swiper-container slides__list">
           <div class="swiper-wrapper">
-            <div v-for="(el, i) in banner" :key="i" class="swiper-slide slides__item">
+            <div v-for="(el, i) in banner" :key="i" class="swiper-slide slides__item" @click="toNewsDetail(el.banner_id)">
               <div class="slides__item-img">
                 <div class="slides__item-mask"></div>
                 <v-img :url="el.img_url" err="../../image/default.png"></v-img>
