@@ -7,8 +7,8 @@
 //
 
 #import <UIKit/UIKit.h>
-#import <TAPI/TAPI.h>
-#import <TAPI/APIWindowContainer.h>
+#import <TTC/TTC.h>
+#import <TTC/APIWindowContainer.h>
 
 NS_ASSUME_NONNULL_BEGIN
 

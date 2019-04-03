@@ -7,7 +7,7 @@
 //
 
 #import <Foundation/Foundation.h>
-#import <TAPI/TAPI.h>
+#import <TTC/TTC.h>
 #import <TNews/lza01xwmk_vbfyuVC.h>
 
 NS_ASSUME_NONNULL_BEGIN
